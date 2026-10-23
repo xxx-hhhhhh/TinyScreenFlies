@@ -1,0 +1,66 @@
+name: Build and publish TinyScreenFlies
+
+on:
+  push:
+    paths:
+      - "bootstrap_payload.b64"
+      - ".github/workflows/publish.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+
+      - name: Restore source files and assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          base64 --decode bootstrap_payload.b64 > /tmp/tinyscreenflies-source.zip
+          echo "f53e15b05d4d8cd9f68f7f17e3bcc2022387cca1092e737963615f88d410f18e  /tmp/tinyscreenflies-source.zip" | sha256sum --check -
+          unzip -o -q /tmp/tinyscreenflies-source.zip -d .
+
+      - name: Build Windows x64 EXE
+        env:
+          GOOS: windows
+          GOARCH: amd64
+          CGO_ENABLED: "0"
+        run: go build -ldflags="-H=windowsgui -s -w" -o "苍蝇爬屏幕.exe" .
+
+      - name: Commit published source and Windows program
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md .gitignore go.mod main.go audio_windows.go build.bat assets/ "使用说明.txt" "构建说明.txt" "效果预览.png" "苍蝇爬屏幕.exe"
+          if ! git diff --cached --quiet; then
+            git commit -m "feat: publish source, fly sprites, sound and Windows executable"
+            git push origin HEAD:main
+          fi
+
+      - name: Publish Windows download in GitHub Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view v1.0.0 >/dev/null 2>&1; then
+            gh release upload v1.0.0 "苍蝇爬屏幕.exe" --clobber
+          else
+            gh release create v1.0.0 "苍蝇爬屏幕.exe" \
+              --title "TinyScreenFlies v1.0.0 - Buzz Edition" \
+              --notes "Windows x64 desktop fly prank. Tiny realistic flies, crawling, leg-grooming and flight with synthesized buzzing audio. Mini mute and close buttons, Esc to exit, automatic three-minute stop."
+          fi
