@@ -57,10 +57,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          cp "苍蝇爬屏幕.exe" TinyScreenFlies_Windows_x64.exe
           if gh release view v1.0.0 >/dev/null 2>&1; then
-            gh release upload v1.0.0 "苍蝇爬屏幕.exe" --clobber
+            gh release upload v1.0.0 TinyScreenFlies_Windows_x64.exe --clobber
+            gh release delete-asset v1.0.0 default.exe --yes || true
           else
-            gh release create v1.0.0 "苍蝇爬屏幕.exe" \
+            gh release create v1.0.0 TinyScreenFlies_Windows_x64.exe \
               --title "TinyScreenFlies v1.0.0 - Buzz Edition" \
               --notes "Windows x64 desktop fly prank. Tiny realistic flies, crawling, leg-grooming and flight with synthesized buzzing audio. Mini mute and close buttons, Esc to exit, automatic three-minute stop."
           fi
