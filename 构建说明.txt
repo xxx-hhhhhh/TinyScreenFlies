@@ -1,0 +1,15 @@
+项目：TinyScreenFlies（带飞行音效）
+
+需要 Go >= 1.21，Windows 64 位。
+在项目目录运行 build.bat 或：
+    go build -ldflags="-H=windowsgui -s -w" -o "苍蝇爬屏幕.exe" .
+
+Linux 交叉编译：
+    GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags='-H=windowsgui -s -w' -o '苍蝇爬屏幕.exe' .
+
+入口：main.go
+声音：audio_windows.go，Windows 多媒体 API waveOut，实时 PCM 合成；不依赖外部音频文件。
+贴图：assets/fly1.png ~ fly4.png，嵌入 EXE 内。
+
+质量检查：完成 Windows 64 位交叉编译，GOOS=windows go vet 检查通过。
+限制：尚未在 Windows 桌面和真实声卡上运行验证。

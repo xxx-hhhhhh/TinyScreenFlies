@@ -1,0 +1,12 @@
+# Local editor files
+.vscode/
+.idea/
+*.log
+*.tmp
+*.bak
+.DS_Store
+Thumbs.db
+# Source-based local builds should not generate incidental executables.
+# The prebuilt release file 苍蝇爬屏幕.exe is intentionally tracked.
+*.exe
+!苍蝇爬屏幕.exe
